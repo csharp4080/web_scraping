@@ -12,20 +12,40 @@ namespace daeyo
     {
         static void Main(string[] args)
         {
-            GetHtmlAsync();
-
+            string ticker;
+            do
+            {
+            Console.WriteLine("Enter the ticker to find its current price: ");
+            ticker = Console.ReadLine();
+            GetHtmlAsync(ticker);
+            Console.ReadLine();
+            } while(!ticker.Equals("q"));
         }
 
-        private static async void GetHtmlAsync()
+        private static async void GetHtmlAsync(string ticker)
         {
-            var url = "https://finance.yahoo.com/quote/AAPL/";
+            string [] exchanges = {"NASDAQ", "NYSE"};
+            foreach (string exchange in exchanges)
+            {
+                try
+                {
+                var url = $"https://www.google.com/finance/quote/{ticker}:{exchange}";
+                var httpClient = new HttpClient();
+                var html = await httpClient.GetStringAsync(url);
+                var htmlDocument = new HtmlDocument();
+                htmlDocument.LoadHtml(html);
+                var name = htmlDocument.DocumentNode.SelectSingleNode("//h1[@class='KY7mAb']").InnerText;
+                var price = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='YMlKec fxKbKc']").InnerText;
+                Console.WriteLine(name);
+                Console.WriteLine(price);
+                return;
+                }
+                catch (Exception)
+                {
 
-            var httpClient = new HttpClient();
-            var html = await httpClient.GetStringAsync(url);
-
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.LoadHtml(html);
-            
+                }
+            }
+            Console.WriteLine("URL not found");
         }
     }
 }
